@@ -1,0 +1,40 @@
+.postList {
+  max-width: 800px;
+  padding: 20px;
+  margin-right: auto;
+  margin-left: auto;
+}
+.postList > h2 {
+  font-size: 2.5rem;
+  margin-bottom: 5px;
+}
+.postList__info {
+  padding: 0.25rem 0.25rem;
+  border: 1px solid rgb(177, 174, 174);
+  border-radius: 7px;
+  margin-top: 1.5rem;
+}
+.postList__info > h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+.postList__info > p {
+  margin-top: 10px;
+}
+.muted-button,
+a.muted-button {
+  background: transparent;
+  border: 1px solid #cdcdcd;
+  color: #4e4e4e;
+  text-decoration: none;
+}
+.muted-button:hover,
+.muted-button:focus,
+.muted-button:active,
+a.muted-button:hover,
+a.muted-button:focus,
+a.muted-button:active {
+  color: #4e4e4e;
+  border: 1px solid #818181;
+  background: transparent;
+}

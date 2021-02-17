@@ -1,0 +1,18 @@
+.PostDetails {
+  margin-top: 20px;
+}
+.postDetails__info {
+  padding: 20px;
+  border: 1px solid black;
+  border-radius: 20px;
+}
+.postDeatils__btn {
+  text-align: end;
+}
+.users {
+  color: rgb(23, 118, 206);
+  text-transform: uppercase;
+}
+.timeago {
+  color: rgb(78, 211, 100);
+}

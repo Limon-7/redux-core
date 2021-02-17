@@ -1,0 +1,59 @@
+.app {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+a {
+  text-decoration: none;
+}
+.app__main {
+  max-width: 800px;
+  margin: 0 auto;
+}
+.nav__section {
+  width: 100%;
+}
+.nav__section h1 {
+  color: #fff;
+}
+.button {
+  display: inline-block;
+  background: #1976d2;
+  color: white;
+  border-radius: 4px;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+}
+.button:hover {
+  background: #fff;
+  color: #1976d2;
+  border: 1px solid #1976d2;
+}
+
+button:disabled,
+button:disabled:hover {
+  opacity: 0.5;
+}
+.form {
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+}
+.form > input,
+textarea {
+  padding: 10px;
+  font-size: 1.2rem;
+  margin: 10px 0px;
+  height: auto;
+}
+.form > button {
+  width: 150px;
+  margin-top: 1.5rem;
+  display: inline-block;
+  background: #1976d2;
+  color: white;
+  border-radius: 4px;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+}
