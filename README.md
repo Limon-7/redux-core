@@ -1,32 +1,36 @@
 ## REDUX
 
-1.  What is Redux?
+1.  ### What is Redux?
+
     Redux is a pattern and library for managing and updating application state, using events called "actions".
 
-2.  Why do we need Redux?
+2.  ### Why do we need Redux?
+
     The patterns and tools provided by Redux make it easier to understand when, where, why, and how the state in your application is being updated, and how your application logic will behave when those changes occur.
 
-3.  State:
+3.  ### State:
+
     State is always kept in plain JavaScript objects and arrays. That means you may not put other things into the Redux state - no class instances, built-in JS types like Map / Set Promise / Date, functions, or anything else that is not plain JS data.
 
-4.  Action:
+4.  ### Action:
+
     An action is a plain JavaScript object that has a type field. You can think of an action as an event that describes something that happened in the application.
     Example: A typical action looks like-
 
     Action Type: const ADD_TODOS="todos/todoAdded";
 
-    ```
+    ```js
     const addTodoAction = {
-        type: ADD_TODOS,
-        payload: 'Buy milk'
-    }
+      type: ADD_TODOS,
+      payload: "Buy milk",
+    };
     ```
 
-5.  Action Creator:
+5.  ### Action Creator:
     An action creator is a function that creates and returns an action object.
     Syntax: const addToDo=(payload)=>(actionObject)
     Example:
-    ```
+    ```js
     export const addToDo=(payload)=>{
         return{
             type:'todos/todoAdded'
@@ -35,7 +39,7 @@
     }
     ```
     NgRx:
-    ```
+    ```js
     export const addToDo=createAction({
         '[Todo page] Todo',
            props<{name:string,isComplete:bool}>()
@@ -43,24 +47,25 @@
     })
     ```
     props:The props method is used to define any additional metadata needed for the handling of the action.
-6.  Reducer:
+6.  ### Reducer:
+
     A reducer is a function that receives the current state and an action object, decides how to update the state if necessary, and returns the new state: (state, action) => newState. You can think of a reducer as an event listener which handles events based on the received action (event) type. Reducers are pure function so we can predict result.
     Example:
 
     1. **Without redux-toolkit libaray**
 
-    ```
+    ```js
     const toggleReducer = (state = initialState, action) => {
-        switch (action.type) {
-            case TAB_SELECTED: {
-                return {
-                    ...state,
-                    currentTab: action.payload,
-                };
-            }
-            default:
-                return state;
+      switch (action.type) {
+        case TAB_SELECTED: {
+          return {
+            ...state,
+            currentTab: action.payload,
+          };
         }
+        default:
+          return state;
+      }
     };
     ```
 
@@ -68,7 +73,7 @@
 
     - using creteSlice() used to autometically carete action and reducer. It takes an option object as an argument which some defalut property like name,initial state,and reducers.The reducers property take case reducer.The main benefit of using createSlice({options}) is to we can write mutative code in reducer function.
 
-    ```
+    ```js
     export const slice = createSlice({
         name: "counter",//reducer name
         initialState: { //initial state
@@ -86,9 +91,10 @@
     export const slice.reducer
     ```
 
-    - prepare(): If want to customize action payload the reducer argument object should be an object instead of a function.This objcet conatain at least 2 properties: **i. reducer ii.prepare**. This reducer property is a case reducer function while the **prepare** field is a callback function.
+    - **prepare():**
+      If want to customize action payload the reducer argument object should be an object instead of a function.This objcet conatain at least 2 properties: **i. reducer ii.prepare**. This reducer property is a case reducer function while the **prepare** field is a callback function.
 
-    ```
+    ```js
     export const slice = createSlice({
        name: "todo",//reducer name
        initialState: { //initial state
@@ -119,7 +125,7 @@
        })
        Example:
 
-    ```
+    ```js
     const todosReducer=createReducer(initialState,(builder)=>{
         builder
             .addCase("todos/addTodos",(state,action)=>{
@@ -133,7 +139,7 @@
 
     4. **[Using map Notation](https://redux-toolkit.js.org/api/createReducer)**
 
-    ```
+    ```js
     const counterReducer = createReducer(0, {
         increment: (state, action) => state + action.payload,
         decrement: (state, action) => state - action.payload
@@ -148,9 +154,9 @@
     })
     ```
 
-    5. NgRx:
+    5. **NgRx:**
 
-    ```
+    ```js
     const addTodoAction=createAction("[Todo Page] Todos",props<{title:string,isComplete:bool}>())
     const todosReducer=createReducer(
         initialState,
@@ -166,11 +172,13 @@
 
     Note: reducer are pure function so don't update state directly.
 
-7.  BindActionCreator:
+7.  ### BindActionCreator:
+
     The bindActionCreator() is useful when we want to pass multiple action creators as a single props to a component.
     Syntax: bindActionCreators(action_creators,dispatch);
 
-8.  Store:
+8.  ### Store:
+
     A store is an immutable object tree in Redux. A store is a state container which holds the application’s state. Redux can have only a single store in your application. Whenever a store is created in Redux, you need to specify the reducer.
     Store method:
 
@@ -182,29 +190,30 @@
     - replaceReducer(nextReducer): Replaces the reducer currently used by the store to calculate the state.You might need this if your app implements code splitting, and you want to load some of the reducers dynamically. You might also need this if you implement a hot reloading mechanism for Redux.
       - nextReducer (Function) The next reducer for the store to use.
 
-9.  How To create a store and Pass other components?
+9.  ### How To create a store and Pass other components?
+
     We can create store using redux library or reduxJs/toolkit libray.
     **redux library:**
     Syntax: const store=createStore(rootReducer,[preloadedState],[enhancer])
     Example:
 
-    ```
+    ```js
     export default function configureStore(preloadedState) {
-        const middleware = [thunk];
-        const middlewareEnhance = applyMiddleware(...middleware);
-        const storeEnhancer = [middlewareEnhance];
-        const composeEnhancer = composeWithDevTools(...storeEnhancer);
+      const middleware = [thunk];
+      const middlewareEnhance = applyMiddleware(...middleware);
+      const storeEnhancer = [middlewareEnhance];
+      const composeEnhancer = composeWithDevTools(...storeEnhancer);
 
-        const store = createStore(rootReducer, preloadedState, composeEnhancer);
-        if (process.env.NODE_ENV !== "production") {
-            if (module.hot) {
-                module.hot.accept("../reducer/rootReducer", () => {
-                    const newRootReducer = require("../reducer/rootReducer").default;
-                    store.replaceReducer(newRootReducer);
-                });
-            }
+      const store = createStore(rootReducer, preloadedState, composeEnhancer);
+      if (process.env.NODE_ENV !== "production") {
+        if (module.hot) {
+          module.hot.accept("../reducer/rootReducer", () => {
+            const newRootReducer = require("../reducer/rootReducer").default;
+            store.replaceReducer(newRootReducer);
+          });
         }
-        return store;
+      }
+      return store;
     }
     ```
 
@@ -212,45 +221,47 @@
     Syntax: const store=configureStore({reduxer,[middleware],[prelodaedState],[enhancer]})
     Example:
 
-    ```
+    ```js
     export default function configureStore(preloadedState) {
-        const middleware = [thunk];
-        const composeEnhancer = composeWithDevTools();
+      const middleware = [thunk];
+      const composeEnhancer = composeWithDevTools();
 
-        const store = configureStore({
-            reducer:rootReducer,
-            middleware:middleware,
-            preloadedState,
-            enhancer:[someenhancer]
-        });
-        if (process.env.NODE_ENV !== "production") {
-            if (module.hot) {
-                module.hot.accept("../reducer/rootReducer", () => {
-                    const newRootReducer = require("../reducer/rootReducer").default;
-                    store.replaceReducer(newRootReducer);
-                });
-            }
+      const store = configureStore({
+        reducer: rootReducer,
+        middleware: middleware,
+        preloadedState,
+        enhancer: [someenhancer],
+      });
+      if (process.env.NODE_ENV !== "production") {
+        if (module.hot) {
+          module.hot.accept("../reducer/rootReducer", () => {
+            const newRootReducer = require("../reducer/rootReducer").default;
+            store.replaceReducer(newRootReducer);
+          });
         }
-        return store;
+      }
+      return store;
     }
     ```
 
 10. Selector:
     Selectors are pure functions that know how to extract specific pieces of information from a store state value. As an application grows bigger, this can help avoid repeating logic as different parts of the app need to read the same data.
     There are 2 types- of selector.
-    .1. inputselector: It is selector that only return a state.That does not use to createSelector.
-    .2. output selector: That use inputSelector and createSelector to build themsalves
+
+    1. `inputselector:` It is selector that only return a state.That does not use to createSelector.
+    2. **output selector:** That use inputSelector and createSelector to build themsalves
 
     - Memozation: This is a common pattern to reduce or completely skip unnecessary computations. **Now it will react only to state.todos object change.**
 
     craeteSelector(): It takes two argument.
-    .1. First one is input selctor a collection of array
-    .2. Second argument is a function that will return the value we want out of the selector.
-    Syntax: const todoSelector=(state)=>state.todos;
+
+    1. First one is input selctor a collection of array
+    2. Second argument is a function that will return the value we want out of the selector.
+       Syntax: const todoSelector=(state)=>state.todos;
 
     Example: Both redux and ngrx are having same syantax.
 
-    ```
+    ```js
     const INITIAL_STATE={
         todos:[];
         toggle:false;
@@ -267,27 +278,22 @@
 
     **Redux**
 
-    ```
-    const todoSelector=(state)=>state.todos;
-    const getSingleTodo=(id)=>createSelector(
-        [todoSelector],
-        (todos)=>{
-            const todo=todos.filter(x=>x.id===id);
-            return todo?todo:null
-        }
-    )
+    ```js
+    const todoSelector = (state) => state.todos;
+    const getSingleTodo = (id) =>
+      createSelector([todoSelector], (todos) => {
+        const todo = todos.filter((x) => x.id === id);
+        return todo ? todo : null;
+      });
     ```
 
     **NgRx**
 
-    ```
-    const getSingleTodo=createSelector(
-        [todoSelector],
-        (todos,props)=>{
-           const todo=todos.filter(x=>x.id===props.id)
-            return todo?todo:null
-        }
-    )
+    ```js
+    const getSingleTodo = createSelector([todoSelector], (todos, props) => {
+      const todo = todos.filter((x) => x.id === props.id);
+      return todo ? todo : null;
+    });
     ```
 
 ## React Redux
