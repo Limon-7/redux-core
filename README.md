@@ -80,7 +80,11 @@
             value: 10,
         },
         reducers: {
-            // this is a case reducer: An object mapping from action types to case reducers, each of which handles one specific action type.
+            /*
+            this is a case reducer: An object mapping from
+            action types to case reducers, each of which handles
+            one specific action type.
+             */
             increment: (state, action) => {
             state.value += 1;
             },
@@ -174,9 +178,9 @@
 
 7.  ### BindActionCreator:
 
-        The bindActionCreator() is useful when we want to pass multiple action creators as a single props to a component.
-        Syntax: bindActionCreators(action_creators,dispatch);
-        Example:
+    The bindActionCreator() is useful when we want to pass multiple action creators as a single props to a component.
+    Syntax: bindActionCreators(action_creators,dispatch);
+    Example:
 
     ```js
     /// without bindActionCreators(actioncreatores,dispatch)
@@ -589,3 +593,77 @@ Step to follow configarations:
   ```
 
 ## redux Data Shape
+
+1. ### Why do we need normalize data shape?
+
+   Many applications deal with data that is nested or relational in nature. For example, a blog editor could have many Posts, each Post could have many Comments, and both Posts and Comments would be written by a User.
+   Code:
+
+   ```js
+   const blogPosts = [
+     {
+       id: "post1",
+       author: { username: "user1", name: "User 1" },
+       body: "......",
+       comments: [
+         {
+           id: "comment1",
+           author: { username: "user2", name: "User 2" },
+           comment: ".....",
+         },
+         {
+           id: "comment2",
+           author: { username: "user3", name: "User 3" },
+           comment: ".....",
+         },
+       ],
+     },
+   ];
+   ```
+
+   1. **Problem**
+      - When a piece of data is duplicated in several places, it becomes harder to make sure that it is updated appropriately.
+      - Nested data means that the corresponding reducer logic has to be more nested and therefore more complex. In particular, trying to update a deeply nested field can become very ugly very fast.
+   2. **Solution:** To normalize the data
+      - Each type of data gets its own "table" in the state.
+      - Each "data table" should store the individual items in an object, with the IDs of the items as keys and the items themselves as the values.
+      - Any references to individual items should be done by storing the item's ID.
+      - Arrays of IDs should be used to indicate ordering.
+   3. **Relationships and tables**
+      ```js
+        {
+            entities: {
+                authors : { byId : {}, allIds : [] },
+                books : { byId : {}, allIds : [] },
+                authorBook : {
+                    byId : {
+                        1 : {
+                            id : 1,
+                            authorId : 5,
+                            bookId : 22
+                        },
+                        2 : {
+                            id : 2,
+                            authorId : 5,
+                            bookId : 15,
+                        },
+                        3 : {
+                            id : 3,
+                            authorId : 42,
+                            bookId : 12
+                        }
+                    },
+                    allIds : [1, 2, 3]
+                }
+            }
+        }
+      ```
+
+## Normalizing Data: Using Normalizr libray
+
+1. ### Normalize:
+   Normalizes input data per the schema definition provided.
+   data: required Input JSON (or plain JS object) data that needs normalization.
+   schema: required A schema definition
+   Example: normalize(input,schema);
+2. ###
