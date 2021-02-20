@@ -174,8 +174,28 @@
 
 7.  ### BindActionCreator:
 
-    The bindActionCreator() is useful when we want to pass multiple action creators as a single props to a component.
-    Syntax: bindActionCreators(action_creators,dispatch);
+        The bindActionCreator() is useful when we want to pass multiple action creators as a single props to a component.
+        Syntax: bindActionCreators(action_creators,dispatch);
+        Example:
+
+    ```js
+    /// without bindActionCreators(actioncreatores,dispatch)
+    const mapDispatchToProps = (dispatch) => {
+      return {
+        increment: () => dispatch(increment()),
+        decrement: () => dispatch(decrement()),
+        reset: () => dispatch(reset()),
+        dispatch,
+      };
+    };
+    //using actionCreators(action_creators,dispatch)
+    const mapDispatchToProps = (dispatch) => {
+      return {
+        dispatch,
+        ...bindActionCreators({ increment, decrement, reset }, dispatch),
+      };
+    };
+    ```
 
 8.  ### Store:
 
@@ -193,9 +213,10 @@
 9.  ### How To create a store and Pass other components?
 
     We can create store using redux library or reduxJs/toolkit libray.
-    **redux library:**
-    Syntax: const store=createStore(rootReducer,[preloadedState],[enhancer])
-    Example:
+
+    1. #### redux library:
+       Syntax: const store=createStore(rootReducer,[preloadedState],[enhancer])
+       Example:
 
     ```js
     export default function configureStore(preloadedState) {
@@ -217,9 +238,10 @@
     }
     ```
 
-    **Redux Toolkit:**The Redux Toolkit package is designed to help simplify several common Redux use cases, including store setup.
-    Syntax: const store=configureStore({reduxer,[middleware],[prelodaedState],[enhancer]})
-    Example:
+    2.  #### Redux Toolkit:
+        The Redux Toolkit package is designed to help simplify several common Redux use cases, including store setup.
+        Syntax: const store=configureStore({reduxer,[middleware],[prelodaedState],[enhancer]})
+        Example:
 
     ```js
     export default function configureStore(preloadedState) {
@@ -244,7 +266,8 @@
     }
     ```
 
-10. Selector:
+10. ### Selector:
+
     Selectors are pure functions that know how to extract specific pieces of information from a store state value. As an application grows bigger, this can help avoid repeating logic as different parts of the app need to read the same data.
     There are 2 types- of selector.
 
@@ -296,83 +319,273 @@
     });
     ```
 
+11. ### How to style a redux?
+
+    1.  **Essential:** These rules help prevent errors.
+
+        - Do not muted state.
+        - Must not have side effects. So the reducer can be predictable. We must not put any asynchronous code or generate random values, or logger like console code in reducer rather we modify side effect code outside of reducer.
+        - Put serialized data in state or action.
+        - Only one redux store for a single app.
+
+    2.  **Strongly Recommended:**These rules have been found to improve readability and/or developer experience in most projects.
+
+        - Use Redux Toolkit for writing redux logic.
+        - Use immer for writing immutable state.
+        - Structured files as feature folders or Duck pattern.
+        - Put as much logic as possible in the reducer.
+        - Reducer should own the state shape. For example if we pass a payload that doest not match the state object shape then raise a error.
+        - Name state slice based on the stored data.
+
+        ```js
+        combineReducers({
+          users: usersReducer,
+          posts: postsReducer,
+        });
+        ```
+
+        - Treat Reducers as State Machines: where the combination of both the current state and the dispatched action determines whether a new state value is actually calculated, not just the action itself unconditionally.
+
+        ```js
+        const initialUserState = {
+            status: 'idle', // explicit finite state
+            user: null,
+            error: null
+        }
+        const IDLE_STATUS = 'idle';
+        const LOADING_STATUS = 'loading';
+        const SUCCESS_STATUS = 'success';
+        const FAILURE_STATUS = 'failure';
+
+        const fetchIdleUserReducer = (state, action) => {
+            // state.status is "idle"
+            switch (action.type) {
+                case FETCH_USER:
+                    return {
+                        ...state,
+                        status: LOADING_STATUS
+                    }
+                }
+                default:
+                    return state;
+            }
+        }
+
+        // ... other reducers
+
+        const fetchUserReducer = (state, action) => {
+            switch (state.status) {
+                case IDLE_STATUS:
+                    return fetchIdleUserReducer(state, action);
+                case LOADING_STATUS:
+                    return fetchLoadingUserReducer(state, action);
+                case SUCCESS_STATUS:
+                    return fetchSuccessUserReducer(state, action);
+                case FAILURE_STATUS:
+                    return fetchFailureUserReducer(state, action);
+                default:
+                // this should never be reached
+                    return state;
+            }
+        }
+        ```
+
+        - Normalize Complex Nested/Relational State.
+        - Actions as Events, Not Setters: we recommend trying to treat actions more as "describing events that occurred", rather than "setters".
+        - Actions should be written with meaningful, informative, descriptive type fields. like: SET_DATA,UPDATE_DATA
+        - Use static typing.
+
+    3.  **Recommended**:
+
+        - Write Action Types as domain/eventName.
+
+        1. [Domain] Action Type"=> "[Login Page] Login"
+        2. "todos/addTodos"
+
+        - Using action creators.
+        - Use Thunk for async code.
+        - Move complex logic outside of the componet usally into thunk.
+        - Use selector function to read from store state. Using memoized selector functions for reading store state whenever possible,
+
 ## React Redux
 
-#### Provider:
+1. ### How do we can provide store to our application?
 
-React Redux provides <Provider />, which makes the Redux store available to the rest of your app:
+   We can provide store available to any nested components that have been wrapped in the connect function.To do this, we wrap our app with the <Provider /> API provided by React Redux.
+   Example:
 
-#### connect:
+   ```js
+   <Provider store={store}>
+     <app />
+   </Provider>
+   ```
 
-React Redux provides a connect function for you to connect your component to the store.
-connect(mapStateToProps,mapDispatchToProps)
+2. ### connect
 
-#### mapStateToProps:
+   connect() function is provided by react redux library which allows to read value from the redux.
+   connect() function takes 2 arguments.
 
-It is used for selecting the part of the data from the store that the connected component needs.
+   - **mapStateToProps:** It called every time the store state changes. It receives the entire store state, and should return an object of data this component needs.
+   - **mapDispatchToProps:** It is used for dispatching an action from store.
 
-```
-const mapStateToProps=(state)=>({
-    currenUser:state.user.currentUser
-});
-```
+     Syntax:
 
-- state= top label root reducer.
-- user = get value from user reducer
-- currentUser= get currentUser value
+   ```js
+   connect(mapStateToProps, mapDispatchToProps)(component);
+   ```
 
-export defalu connect(mapStateToProps)(Header)
+3. ### mapStateToProps()
 
-#### mapDispatchToProps:
+   It is used for selecting the part of the data from the store that the connected component needs. It’s frequently referred to as just mapState for short.
 
-It is a function.It is used for dispatching actions to the store.it has two arguments.
-.1.dispatch
-.2. ownProps (optional)
-The mapDispatchToProps function will be called with dispatch as the first argument. You will normally make use of this by returning new functions that call dispatch() inside themselves, and either pass in a plain action object directly or pass in the result of an action creator.
+- It is called every time the store state changes.
+- It receives the entire store state, and should return an object of data this component needs.
+  Synatx: function mapStateToProps(state,ownProps?)
+  Example:
 
-```
-const mapDispatchToProps=dispatch=>({
-    actionname:object=>dispatch(actionName(object));
-})
-```
+  ```js
+  const mapStateToProps = (state, props) => ({
+    collection: selectShopCollection(props.match.params.catagoryId)(state),
+  });
+  // we can use createStructuredSelector
+  const mapStateToProps = createStructuredSelector({
+    collection: selectShopCollection(props.match.params.catagoryId),
+  });
+  ```
 
-Your mapDispatchToProps function should return a plain object:
+4. ### mapDispatchToProps()
 
-### dispatch():
+   It is used for dispatching actions to the store.
+   `dispatch` is a function of the Redux store. This is the only way to trigger a state change.
+   Synatx: function mapDispatchToProps(state,ownProps?)
+   Example:
 
-#### State destrutor:
+   ```js
+   const mapStateToProps = (dispatch, ownProps) => ({
+     removeItem: (item) => dispatch(removeItemFromCart(item)),
+     //or
+     addItem: () => dispatch(addItemFromCart(ownProps.id)),
+   });
+   ```
 
-```
+5. ### batch(fn:function):
+
+   React `bacth` API allows any React updates in an event loop tick to be batched together into a single render pass.
+   You can use it to ensure that multiple actions dispatched outside of React only result in a single render update.
+
+   ```js
+   function myThunk() {
+     return (dispatch, getState) => {
+       // should only result in one combined re-render, not two
+       batch(() => {
+         dispatch(increment());
+         dispatch(increment());
+       });
+     };
+   }
+   ```
+
+6. ### How can we make State destrutor?
+
+```js
 const mapStateToProps = (state) => ({
-    currenUser: state.user.currentUser,
+  currenUser: state.user.currentUser,
 });
-To:
+//using destructor
 const mapStateToProps = ({ user: { currentUser }, cart: { hidden } }) => ({
-    currentUser,
-    hidden,
+  currentUser,
+  hidden,
 });
 ```
 
-### Selector:
+7. ### Hooks in React Redux
+   1. #### useSelector:
+      `useSelector()` hook used to select a specific store state in a functional component. `useSelector()` is alternative for mapStateToProps. We can use multiple selector in a single component.
+      Syntax: const getCout=useSelector(state);
+      Example:
+      ```js
+      const collection = useSelector((state) =>
+        selectShopCollection(props.match.params.catagoryId)(state)
+      );
+      ```
+   2. ### useDispatch():
+      This hook returns a reference to the dispatch function from the Redux store.
+      Syntax: const dispatch=useDispatch();
+      We can memoized a dispatched action using callback hooks.
+      ```js
+      const dispatch = useDispatch();
+      const incrementCounter = useCallback(
+        () => dispatch({ type: "increment-counter" }),
+        [dispatch]
+      );
+      ```
+   3. ### useStore():
+      This hook returns a reference to the same Redux store that was passed in to the <Provider> component.
+      Example:
+      ```js
+      const store = useStore();
+      console.log("Current state", store.getState());
+      ```
 
-There are 2 types- of selector.
-.1. inputselector: It is selector that only return a state.That does not use to createSelector.
-.2. output selector: That use inputSelector and createSelector to build themsalves
+## Redux-thunk
 
-- Memozation: This is a common pattern to reduce or completely skip unnecessary computations. **Now it will react only to state.todos object change.**
+Redux Thunk middleware allows us create side effects logic, including complex synchronous logic that needs access to the store, and simple async logic like AJAX requests.
+Example:
 
-craeteSelector(): It takes two argument.
-.1. First one is input selctor a collection of array
-.2. Second argument is a function that will return the value we want out of the selector.
-
+```js
+export const fetechCollectionsStartAsync = () => {
+  return (dispatch) => {
+    dispatch(fetchCollectionStart());
+    const collectionsRef = firestore.collection("collections");
+    collectionsRef
+      .get()
+      .then((snapshot) => {
+        const collectionsMap = convertCollectionsSnapshotToMap(snapshot);
+        dispatch(fetchCollectionSuccess(collectionsMap));
+      })
+      .catch((error) => dispatch(fetchCollectionFailure(error.message)));
+  };
+};
 ```
-createSelector([selectCart],cart=>cart.cartItems)
-```
 
-### persistStore: from redux-persist
+## persistStore: from redux-persist
 
 Redux-Persist saves the Redux Store when the app is closed or refreshed in the iPhone simulator.
 Step to follow configarations:
 
-- create a persistStore(passTheDefaultreduxstore)
-- setup root reducers with storage as using localStorage as default storage.
+- Create a persist config for persistReducer(config,reducer).
+  - config object has 2 mandatory property **i.key ii.stroage**
+    code:
+  ```js
+  const persistConfig = {
+    key: "root",
+    storage,
+    whitelist: ["cart"], //reducer name
+  };
+  // simply export the persistReducer
+  export default persistReducer(persistConfig, rootReducer);
+  ```
+- create a persistStore(passTheDefaultreduxstore).
+  Code:
+
+  ```js
+  export const persistor = persistStore(store);
+  export default { store, persistor };
+  ```
+
+- provide the persistStore to the root of the component tree using Persistgate Api.
+  Code:
+
+  ```jsx
+  <Provider store={store}>
+    <BrowserRouter>
+      <React.StrictMode>
+        <PersistGate loading={null} persistor={persistor}>
+          <App />
+        </PersistGate>
+      </React.StrictMode>
+    </BrowserRouter>
+  </Provider>
+  ```
+
+## redux Data Shape
