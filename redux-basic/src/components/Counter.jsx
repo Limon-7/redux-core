@@ -13,8 +13,8 @@ import {
 
 function Counter() {
   const dispatch = useDispatch();
-  // const count = useSelector(selectCount);
-  const count = useSelector((state) => state.counter.value);
+  const count = useSelector(selectCount);
+  // const count = useSelector((state) => state.counter.value);
   const [incrementValue, setIncrementValue] = useState(2);
   return (
     <div className="counter">
